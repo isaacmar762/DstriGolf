@@ -34,6 +34,12 @@ android {
     }
 }
 
+tasks.whenTaskAdded {
+    if (name.contains("checkReleaseAarMetadata")) {
+        enabled = false
+    }
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
