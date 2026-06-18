@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.distrigolf.distrigolf_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
