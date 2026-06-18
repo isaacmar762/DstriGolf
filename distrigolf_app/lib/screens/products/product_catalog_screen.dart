@@ -125,6 +125,22 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
               ],
             ),
           ),
+          if (productProvider.error != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  productProvider.error!,
+                  style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                ),
+              ),
+            ),
           Expanded(
             child: productProvider.loading
                 ? const Center(child: CircularProgressIndicator())

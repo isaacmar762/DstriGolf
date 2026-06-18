@@ -50,9 +50,13 @@ class ProductProvider extends ChangeNotifier {
 
     try {
       _productos = await _repository.obtenerProductos();
-      _lineas = await _repository.obtenerLineas();
     } catch (e) {
       _error = e.toString();
+    }
+    try {
+      _lineas = await _repository.obtenerLineas();
+    } catch (e) {
+      _error = (_error ?? '') + 'Lineas: $e';
     }
 
     _loading = false;
