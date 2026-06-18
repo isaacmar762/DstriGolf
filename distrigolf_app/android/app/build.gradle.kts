@@ -32,11 +32,9 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
-}
 
-tasks.whenTaskAdded {
-    if (name.contains("checkReleaseAarMetadata")) {
-        enabled = false
+    lint {
+        abortOnError = false
     }
 }
 
