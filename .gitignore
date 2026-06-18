@@ -1,0 +1,43 @@
+# Flutter
+distrigolf_app/build/
+distrigolf_app/.dart_tool/
+distrigolf_app/.packages
+distrigolf_app/.pub/
+distrigolf_app/pubspec.lock
+distrigolf_app/.flutter-plugins
+distrigolf_app/.flutter-plugins-dependencies
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Excel files (business data)
+*.xlsx
+*.xls
+
+# Template review (not part of project)
+template_review/
+
+# Test output
+distrigolf_app/flutter_output.txt
+distrigolf_app/flutter_error.txt
+distrigolf_app/flutter_test_out.txt
+distrigolf_app/flutter_test_err.txt
+
+# Python cache
+scripts/__pycache__/
