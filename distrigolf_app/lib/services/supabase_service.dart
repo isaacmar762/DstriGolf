@@ -10,6 +10,8 @@ import '../models/order.dart';
 import '../models/order_item.dart';
 
 class SupabaseService {
+  static String lastDebugInfo = '(no debug info)';
+
   final SupabaseClient _client;
   final String _supabaseUrl;
   final String _anonKey;
@@ -91,9 +93,9 @@ class SupabaseService {
         url += '&nombre_linea=eq.$linea';
       }
       url += '&order=id.asc';
-      print('obtenerProductos GET $url');
+      lastDebugInfo = 'GET $url';
       final res = await http.get(Uri.parse(url), headers: headers);
-      print('obtenerProductos status: ${res.statusCode}, body length: ${res.body.length}');
+      lastDebugInfo = 'Status ${res.statusCode}, length ${res.body.length}';
       if (res.statusCode != 200) {
         throw Exception('HTTP ${res.statusCode}: ${res.body.substring(0, 200)}');
       }
@@ -101,11 +103,12 @@ class SupabaseService {
         throw Exception('Empty response body');
       }
       final parsed = jsonDecode(res.body);
-      print('obtenerProductos parsed type: ${parsed.runtimeType}');
+      lastDebugInfo = 'parsed ${parsed.runtimeType}';
       final list = parsed as List;
-      print('obtenerProductos: ${list.length} productos (limit=1 test)');
+      lastDebugInfo = '${list.length} prod (limit=1)';
       return list.map((e) => ProductModel.fromMap(e as Map<String, dynamic>)).toList();
     } catch (e, s) {
+      lastDebugInfo = 'ERROR: $e (${e.runtimeType}) at ${s.toString().substring(0, 200)}';
       print('obtenerProductos error: $e');
       print('stack: $s');
       rethrow;

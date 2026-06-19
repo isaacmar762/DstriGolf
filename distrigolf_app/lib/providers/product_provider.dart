@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/price.dart';
 import '../repositories/product_repository.dart';
+import '../services/supabase_service.dart';
 
 class ProductProvider extends ChangeNotifier {
   final ProductRepository _repository;
@@ -12,6 +13,7 @@ class ProductProvider extends ChangeNotifier {
   bool _loading = false;
   String? _error;
   String _busqueda = '';
+  String _debugInfo = '(pending)';
   Map<int, PriceModel> _precios = {};
 
   ProductProvider(this._repository);
@@ -46,6 +48,7 @@ class ProductProvider extends ChangeNotifier {
     _loading = true;
     _error = null;
     _precios.clear();
+    _debugInfo = SupabaseService.lastDebugInfo;
     notifyListeners();
 
     try {
@@ -57,6 +60,13 @@ class ProductProvider extends ChangeNotifier {
       _lineas = await _repository.obtenerLineas();
     } catch (e) {
       _error = (_error ?? '') + 'Lineas: $e';
+    }
+
+    _debugInfo = SupabaseService.lastDebugInfo;
+    if (_productos.isEmpty && _error == null) {
+      _error = 'Vacío. Debug: $_debugInfo';
+    } else {
+      _error = (_error ?? '') + ' Debug: $_debugInfo';
     }
 
     _loading = false;
