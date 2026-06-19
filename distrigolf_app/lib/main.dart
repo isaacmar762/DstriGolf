@@ -17,12 +17,13 @@ import 'app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: 'https://wsohgkyrtskshbinlfeg.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzb2hna3lydHNrc2hiaW5sZmVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NzMzNTgsImV4cCI6MjA5NjQ0OTM1OH0.dI7gPifxB0PCojH-oYUAkPbTsIVrPtV82378mjmN6NE',
-  );
+  const url = 'https://wsohgkyrtskshbinlfeg.supabase.co';
+  const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzb2hna3lydHNrc2hiaW5sZmVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NzMzNTgsImV4cCI6MjA5NjQ0OTM1OH0.dI7gPifxB0PCojH-oYUAkPbTsIVrPtV82378mjmN6NE';
 
-  final supabaseService = SupabaseService(Supabase.instance.client);
+  await Supabase.initialize(url: url, anonKey: anonKey);
+
+  final supabaseService = SupabaseService(Supabase.instance.client,
+      supabaseUrl: url, anonKey: anonKey);
   final localDbService = LocalDbService();
   final syncService = SyncService(supabaseService, localDbService);
 
