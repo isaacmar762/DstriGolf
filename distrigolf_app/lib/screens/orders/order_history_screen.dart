@@ -36,8 +36,19 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       appBar: AppBar(title: const Text('Mis Pedidos')),
       body: orderProvider.loading
           ? const Center(child: CircularProgressIndicator())
-          : orderProvider.pedidos.isEmpty
-              ? const Center(
+          : orderProvider.error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      orderProvider.error!,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+              : orderProvider.pedidos.isEmpty
+                  ? const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

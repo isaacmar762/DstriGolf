@@ -21,8 +21,7 @@ class SyncService {
   void iniciarSyncAutomatico() {
     _subscription?.cancel();
     _subscription = _connectivity.onConnectivityChanged.listen((result) {
-      if (result == ConnectivityResult.mobile ||
-          result == ConnectivityResult.wifi) {
+      if (result.any((r) => r == ConnectivityResult.mobile || r == ConnectivityResult.wifi)) {
         sincronizarPedidosPendientes();
       }
     });
@@ -34,8 +33,7 @@ class SyncService {
 
   Future<bool> hayConexion() async {
     final result = await _connectivity.checkConnectivity();
-    return result == ConnectivityResult.mobile ||
-        result == ConnectivityResult.wifi;
+    return result.any((r) => r == ConnectivityResult.mobile || r == ConnectivityResult.wifi);
   }
 
   Future<void> sincronizarPedidosPendientes() async {

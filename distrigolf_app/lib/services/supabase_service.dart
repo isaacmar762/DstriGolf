@@ -68,12 +68,18 @@ class SupabaseService {
   }
 
   Future<List<ProductModel>> obtenerProductos({String? linea}) async {
-    dynamic query = _client.from('productos').select().eq('activo', true);
-    if (linea != null) {
-      query = query.eq('nombre_linea', linea);
+    try {
+      dynamic query = _client.from('productos').select('*').isFilter('activo', true);
+      if (linea != null) {
+        query = query.eq('nombre_linea', linea);
+      }
+      final res = await query.order('id', ascending: true);
+      final list = res as List;
+      return list.map((e) => ProductModel.fromMap(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      debugPrint('obtenerProductos error: $e');
+      rethrow;
     }
-    final res = await query.order('nombre');
-    return (res as List).map((e) => ProductModel.fromMap(e)).toList();
   }
 
   Future<List<String>> obtenerLineas() async {
