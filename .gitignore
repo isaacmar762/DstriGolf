@@ -41,3 +41,7 @@ distrigolf_app/flutter_test_err.txt
 
 # Python cache
 scripts/__pycache__/
+
+# Build logs
+Run flutter build apk --release.txt
+build_log*.txt
