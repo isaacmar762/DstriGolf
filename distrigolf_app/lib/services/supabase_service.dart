@@ -86,19 +86,24 @@ class SupabaseService {
   Future<List<ProductModel>> obtenerProductos({String? linea}) async {
     try {
       final headers = await _authHeaders();
-      String url = '$_supabaseUrl/rest/v1/productos?select=*&activo=eq.true';
+      String url = '$_supabaseUrl/rest/v1/productos?select=*&activo=eq.true&limit=1';
       if (linea != null) {
         url += '&nombre_linea=eq.$linea';
       }
       url += '&order=id.asc';
       print('obtenerProductos GET $url');
       final res = await http.get(Uri.parse(url), headers: headers);
-      print('obtenerProductos status: ${res.statusCode}');
+      print('obtenerProductos status: ${res.statusCode}, body length: ${res.body.length}');
       if (res.statusCode != 200) {
-        throw Exception('HTTP ${res.statusCode}: ${res.body}');
+        throw Exception('HTTP ${res.statusCode}: ${res.body.substring(0, 200)}');
       }
-      final list = jsonDecode(res.body) as List;
-      print('obtenerProductos: ${list.length} productos');
+      if (res.body.trim().isEmpty) {
+        throw Exception('Empty response body');
+      }
+      final parsed = jsonDecode(res.body);
+      print('obtenerProductos parsed type: ${parsed.runtimeType}');
+      final list = parsed as List;
+      print('obtenerProductos: ${list.length} productos (limit=1 test)');
       return list.map((e) => ProductModel.fromMap(e as Map<String, dynamic>)).toList();
     } catch (e, s) {
       print('obtenerProductos error: $e');
@@ -130,15 +135,16 @@ class SupabaseService {
 
   Future<PriceModel?> obtenerPrecio(int productoId, String tipoVendedor) async {
     try {
+      final headers = await _authHeaders();
       final table = tipoVendedor == 'MAYORISTA' ? 'precios_mayorista' : 'precios_tat';
-      final res = await _client
-          .from(table)
-          .select()
-          .eq('producto_id', productoId)
-          .maybeSingle();
-      if (res == null) return null;
-      return PriceModel.fromMap(res);
-    } catch (_) {
+      final url = '$_supabaseUrl/rest/v1/$table?select=*&producto_id=eq.$productoId';
+      final res = await http.get(Uri.parse(url), headers: headers);
+      if (res.statusCode != 200) return null;
+      final list = jsonDecode(res.body) as List;
+      if (list.isEmpty) return null;
+      return PriceModel.fromMap(list.first as Map<String, dynamic>);
+    } catch (e) {
+      print('obtenerPrecio error: $e');
       return null;
     }
   }
@@ -157,12 +163,19 @@ class SupabaseService {
 
   Future<List<Map<String, dynamic>>> obtenerProductosConPrecio(
       String tipoVendedor) async {
-    final table = tipoVendedor == 'MAYORISTA' ? 'precios_mayorista' : 'precios_tat';
-    final res = await _client
-        .from(table)
-        .select('*, productos!inner(*)')
-        .order('productos(nombre)');
-    return (res as List).cast<Map<String, dynamic>>();
+    try {
+      final headers = await _authHeaders();
+      final table = tipoVendedor == 'MAYORISTA' ? 'precios_mayorista' : 'precios_tat';
+      final url = '$_supabaseUrl/rest/v1/$table?select=*,productos!inner(*)&order=productos(nombre)';
+      final res = await http.get(Uri.parse(url), headers: headers);
+      if (res.statusCode != 200) {
+        throw Exception('HTTP ${res.statusCode}: ${res.body}');
+      }
+      return (jsonDecode(res.body) as List).cast<Map<String, dynamic>>();
+    } catch (e) {
+      print('obtenerProductosConPrecio error: $e');
+      rethrow;
+    }
   }
 
   Future<String> crearPedido(OrderModel pedido) async {
