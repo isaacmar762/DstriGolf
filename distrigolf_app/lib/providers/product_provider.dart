@@ -63,7 +63,13 @@ class ProductProvider extends ChangeNotifier {
     }
 
     _debugInfo = SupabaseService.lastDebugInfo;
-    _error = 'Prod: ${_productos.length} | Debug: $_debugInfo';
+    if (_error == null) {
+      if (_productos.isEmpty) {
+        _error = 'Vacío. Debug: $_debugInfo';
+      }
+    } else {
+      _error = '$_error | Debug: $_debugInfo';
+    }
 
     _loading = false;
     notifyListeners();

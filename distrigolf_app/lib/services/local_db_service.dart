@@ -31,7 +31,7 @@ class LocalDbService {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -63,7 +63,8 @@ class LocalDbService {
         nombre_linea TEXT,
         cod_medida TEXT,
         volumen REAL,
-        grados REAL
+        grados REAL,
+        imagen_url TEXT
       )
     ''');
 
@@ -126,7 +127,11 @@ class LocalDbService {
     ''');
   }
 
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE productos_local ADD COLUMN imagen_url TEXT');
+    }
+  }
 
   // ─── Clientes ───────────────────────────────────────────────────
 
