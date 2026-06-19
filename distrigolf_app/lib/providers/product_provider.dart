@@ -26,8 +26,9 @@ class ProductProvider extends ChangeNotifier {
     var result = _productos;
 
     if (_lineaSeleccionada != null) {
+      final target = _lineaSeleccionada!.trim();
       result = result
-          .where((p) => p.nombreLinea == _lineaSeleccionada)
+          .where((p) => p.nombreLinea?.trim() == target)
           .toList();
     }
 

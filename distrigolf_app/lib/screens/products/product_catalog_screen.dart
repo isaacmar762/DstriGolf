@@ -44,16 +44,16 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
       appBar: AppBar(
         title: const Text('Catálogo de Productos'),
         actions: [
-          if (orderProvider.itemCount > 0)
-            Stack(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.shopping_cart),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CartScreen()),
-                  ),
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CartScreen()),
                 ),
+              ),
+              if (orderProvider.itemCount > 0)
                 Positioned(
                   right: 6,
                   top: 6,
@@ -73,8 +73,8 @@ class _ProductCatalogScreenState extends State<ProductCatalogScreen> {
                     ),
                   ),
                 ),
-              ],
-            ),
+            ],
+          ),
         ],
       ),
       body: Column(
