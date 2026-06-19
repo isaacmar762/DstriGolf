@@ -77,7 +77,7 @@ class SupabaseService {
       final list = res as List;
       return list.map((e) => ProductModel.fromMap(e as Map<String, dynamic>)).toList();
     } catch (e) {
-      debugPrint('obtenerProductos error: $e');
+      print('obtenerProductos error: $e');
       rethrow;
     }
   }
