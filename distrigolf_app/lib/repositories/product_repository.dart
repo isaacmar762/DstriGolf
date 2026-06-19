@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/product.dart';
 import '../models/price.dart';
@@ -13,7 +14,9 @@ class ProductRepository {
   Future<List<ProductModel>> obtenerProductos({String? linea}) async {
     try {
       final productos = await _supabase.obtenerProductos(linea: linea);
-      await _localDb.guardarProductos(productos);
+      unawaited(_localDb.guardarProductos(productos).catchError((e) {
+        debugPrint('Error al guardar en local DB: $e');
+      }));
       return productos;
     } catch (e) {
       debugPrint('Error al obtener productos de Supabase: $e');
