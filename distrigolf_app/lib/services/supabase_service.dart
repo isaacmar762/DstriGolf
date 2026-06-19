@@ -88,29 +88,22 @@ class SupabaseService {
   Future<List<ProductModel>> obtenerProductos({String? linea}) async {
     try {
       final headers = await _authHeaders();
-      String url = '$_supabaseUrl/rest/v1/productos?select=*&activo=eq.true&limit=1';
-      if (linea != null) {
-        url += '&nombre_linea=eq.$linea';
-      }
-      url += '&order=id.asc';
+      String url = '$_supabaseUrl/rest/v1/productos?select=*&limit=1';
       lastDebugInfo = 'GET $url';
       final res = await http.get(Uri.parse(url), headers: headers);
       lastDebugInfo = 'Status ${res.statusCode}, length ${res.body.length}';
       if (res.statusCode != 200) {
-        throw Exception('HTTP ${res.statusCode}: ${res.body.substring(0, 200)}');
-      }
-      if (res.body.trim().isEmpty) {
-        throw Exception('Empty response body');
+        throw Exception('HTTP ${res.statusCode}: ${res.body.length} chars');
       }
       final parsed = jsonDecode(res.body);
       lastDebugInfo = 'parsed ${parsed.runtimeType}';
       final list = parsed as List;
-      lastDebugInfo = '${list.length} prod (limit=1)';
+      lastDebugInfo = '${list.length} prod (test sin filtros)';
+      if (list.isEmpty) return [];
       return list.map((e) => ProductModel.fromMap(e as Map<String, dynamic>)).toList();
     } catch (e, s) {
-      lastDebugInfo = 'ERROR: $e (${e.runtimeType}) at ${s.toString().substring(0, 200)}';
+      lastDebugInfo = 'ERROR: $e at ${s.toString().substring(0, 200)}';
       print('obtenerProductos error: $e');
-      print('stack: $s');
       rethrow;
     }
   }
