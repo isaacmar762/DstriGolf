@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../models/product.dart';
 import '../../services/supabase_service.dart';
 import 'create_product_screen.dart';
+import 'edit_product_screen.dart';
 
 class AdminProductListScreen extends StatefulWidget {
   const AdminProductListScreen({super.key});
@@ -27,7 +28,8 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
     try {
       final svc = context.read<SupabaseService>();
       final res = await svc.client.from('productos').select().order('nombre');
-      _productos = (res as List).map((e) => ProductModel.fromMap(e)).toList();
+      _productos =
+          (res as List).map((e) => ProductModel.fromMap(e)).toList();
     } catch (e) {
       debugPrint('Error cargando productos admin: $e');
     }
@@ -35,9 +37,30 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
   }
 
   Future<void> _toggleActivo(ProductModel p) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Desactivar Producto'),
+        content: Text('¿Desactivar "${p.nombre}"?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Desactivar'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
     try {
       final svc = context.read<SupabaseService>();
-      await svc.client.from('productos').update({'activo': false}).eq('id', p.id);
+      await svc.client
+          .from('productos')
+          .update({'activo': false})
+          .eq('id', p.id);
       _cargar();
     } catch (e) {
       if (mounted) {
@@ -97,11 +120,34 @@ class _AdminProductListScreenState extends State<AdminProductListScreen> {
                               ),
                             ),
                           ),
-                          title: Text(p.nombre, style: const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text('Ref: ${p.referencia} | ${p.nombreLinea ?? "Sin línea"}'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.red),
-                            onPressed: () => _toggleActivo(p),
+                          title: Text(p.nombre,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text(
+                              'Ref: ${p.referencia} | ${p.nombreLinea ?? "Sin línea"}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined,
+                                    color: AppTheme.primaryColor),
+                                onPressed: () async {
+                                  final ok = await Navigator.push<bool>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          EditProductScreen(product: p),
+                                    ),
+                                  );
+                                  if (ok == true) _cargar();
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline,
+                                    color: Colors.red),
+                                onPressed: () => _toggleActivo(p),
+                              ),
+                            ],
                           ),
                         ),
                       );

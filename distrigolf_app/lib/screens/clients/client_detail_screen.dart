@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/product_provider.dart';
+import '../admin/edit_client_screen.dart';
 import '../products/product_catalog_screen.dart';
 
 class ClientDetailScreen extends StatefulWidget {
@@ -37,7 +38,27 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(client.nombre)),
+      appBar: AppBar(
+        title: Text(client.nombre),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () async {
+              final ok = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditClientScreen(client: client),
+                ),
+              );
+              if (ok == true) {
+                context
+                    .read<ClientProvider>()
+                    .seleccionarCliente(client.id);
+              }
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

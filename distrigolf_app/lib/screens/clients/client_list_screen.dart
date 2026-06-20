@@ -6,6 +6,7 @@ import '../../providers/client_provider.dart';
 import '../../providers/order_provider.dart';
 import '../products/product_catalog_screen.dart';
 import 'client_detail_screen.dart';
+import 'create_client_seller_screen.dart';
 
 class ClientListScreen extends StatefulWidget {
   final bool isSelecting;
@@ -22,6 +23,10 @@ class _ClientListScreenState extends State<ClientListScreen> {
   @override
   void initState() {
     super.initState();
+    _cargar();
+  }
+
+  void _cargar() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = context.read<AuthProvider>();
       if (auth.user != null) {
@@ -52,6 +57,26 @@ class _ClientListScreenState extends State<ClientListScreen> {
             ),
         ],
       ),
+      floatingActionButton: isSelecting
+          ? null
+          : FloatingActionButton(
+              onPressed: () async {
+                final ok = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const CreateClientSellerScreen()),
+                );
+                if (ok == true) {
+                  final auth = context.read<AuthProvider>();
+                  if (auth.user != null) {
+                    context
+                        .read<ClientProvider>()
+                        .cargarClientes(auth.user!.id);
+                  }
+                }
+              },
+              child: const Icon(Icons.add),
+            ),
       body: Column(
         children: [
           Padding(

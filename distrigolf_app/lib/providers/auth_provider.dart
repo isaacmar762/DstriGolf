@@ -51,7 +51,8 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString();
+      final msg = e.toString();
+      _error = msg.startsWith('Exception: ') ? msg.substring(11) : msg;
       _status = AuthStatus.unauthenticated;
       notifyListeners();
       return false;
@@ -71,7 +72,8 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString();
+      final msg = e.toString();
+      _error = msg.startsWith('Exception: ') ? msg.substring(11) : msg;
       _status = AuthStatus.unauthenticated;
       notifyListeners();
       return false;

@@ -197,6 +197,22 @@ class SupabaseService {
     await _client.from('clientes').update(data).eq('id', id);
   }
 
+  Future<Map<String, dynamic>> crearClienteConVendedor(
+      Map<String, dynamic> data, String vendedorId) async {
+    final res =
+        await _client.from('clientes').insert(data).select('id').single();
+    final clienteId = res['id'] as int;
+    await _client.from('vendedor_clientes').insert({
+      'vendedor_id': vendedorId,
+      'cliente_id': clienteId,
+    });
+    return res;
+  }
+
+  Future<void> eliminarCliente(int id) async {
+    await _client.from('clientes').update({'activo': false}).eq('id', id);
+  }
+
   Future<List<Map<String, dynamic>>> obtenerZonas() async {
     final res = await _client.from('zonas').select().order('nombre');
     return (res as List).cast<Map<String, dynamic>>();

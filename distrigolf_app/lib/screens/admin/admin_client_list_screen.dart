@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
+import '../../models/client.dart';
 import '../../services/supabase_service.dart';
 import 'create_client_screen.dart';
+import 'edit_client_screen.dart';
 
 class AdminClientListScreen extends StatefulWidget {
   const AdminClientListScreen({super.key});
@@ -25,12 +27,50 @@ class _AdminClientListScreenState extends State<AdminClientListScreen> {
     setState(() => _loading = true);
     try {
       final svc = context.read<SupabaseService>();
-      final res = await svc.client.from('clientes').select('*, zonas(id, nombre)').order('nombre');
+      final res = await svc.client
+          .from('clientes')
+          .select('*, zonas(id, nombre)')
+          .order('nombre');
       _clientes = (res as List).cast<Map<String, dynamic>>();
     } catch (e) {
       debugPrint('Error cargando clientes admin: $e');
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  Future<void> _eliminarCliente(Map<String, dynamic> c) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Eliminar Cliente'),
+        content: Text('¿Desactivar cliente "${c['nombre']}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      final svc = context.read<SupabaseService>();
+      await svc.eliminarCliente(c['id'] as int);
+      _cargar();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cliente desactivado')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -75,11 +115,37 @@ class _AdminClientListScreenState extends State<AdminClientListScreen> {
                               ),
                             ),
                           ),
-                          title: Text(c['nombre'] as String, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          title: Text(c['nombre'] as String,
+                              style: const TextStyle(fontWeight: FontWeight.w600)),
                           subtitle: Text(
                             c['codigo'] != null
                                 ? 'Cód: ${c['codigo']}${c['dv'] != null ? "-${c['dv']}" : ""}${zonaNombre != null ? " | $zonaNombre" : ""}'
                                 : zonaNombre ?? '',
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, color: AppTheme.primaryColor),
+                                onPressed: () async {
+                                  final client = ClientModel.fromMap({
+                                    ...c,
+                                    'zona_nombre': zonaNombre,
+                                  });
+                                  final ok = await Navigator.push<bool>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => EditClientScreen(client: client),
+                                    ),
+                                  );
+                                  if (ok == true) _cargar();
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                onPressed: () => _eliminarCliente(c),
+                              ),
+                            ],
                           ),
                         ),
                       );
