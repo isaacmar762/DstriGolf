@@ -2,28 +2,37 @@ name: Build APK
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: distrigolf_app
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.x'
 
-      - run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: distrigolf_app
 
-      - run: flutter build apk --release
+      - name: Build APK release
+        run: flutter build apk --release
+        working-directory: distrigolf_app
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
+          name: app-release
           path: distrigolf_app/build/app/outputs/flutter-apk/app-release.apk
